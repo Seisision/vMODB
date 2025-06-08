@@ -18,70 +18,92 @@ public final class Parser {
      * @param sql a simple select statement (select <x,y,x,...> from table where <>
      */
     public static SelectStatement parse(String sql) {
-
-        String[] tokens = sql.split(" ");
-
-        assert tokens.length > 0 && tokens[0].equalsIgnoreCase("select");
-
+        if (sql == null || sql.isBlank()) {
+            throw new IllegalArgumentException("SQL query cannot be null or empty.");
+        }
+    
+        String[] tokens = sql.trim().split("\\s+");
+        if (tokens.length == 0 || !tokens[0].equalsIgnoreCase("select")) {
+            throw new IllegalArgumentException("Invalid SQL query. Must start with SELECT.");
+        }
+    
         int i = 1;
-
-        List<String> projection = new ArrayList<>(2);
-
-        while(i < tokens.length && !tokens[i].equalsIgnoreCase("from")){
-            // remove comma from all
-            projection.add(tokens[i].replace(',',' ').trim());
+        List<String> projection = new ArrayList<>();
+    
+        // check columns to select
+        while (i < tokens.length && !tokens[i].equalsIgnoreCase("from")) {
+            projection.add(tokens[i].replace(",", "").trim());
             i++;
         }
-
-        i++;
-        assert i < tokens.length;
+    
+        if (i >= tokens.length || !tokens[i].equalsIgnoreCase("from")) {
+            throw new IllegalArgumentException("Invalid SQL query. Missing FROM clause.");
+        }
+        i++; // Move past "from"
+    
+        if (i >= tokens.length) {
+            throw new IllegalArgumentException("Invalid SQL query. Missing table name.");
+        }
         String table = tokens[i];
         i++;
-        assert i < tokens.length && tokens[i].equalsIgnoreCase("where");
-        i++;
-
-        List<WhereClauseElement> whereClauseElements = new ArrayList<>(2);
-
-        // get triples of values
-        while(i < tokens.length && !tokens[i].equalsIgnoreCase("order")){
-            // remove comma from all
-            String left = tokens[i];
-            i++;
-            ExpressionTypeEnum exp = getExpressionFromString(tokens[i]);
-
-            // skip the input
-            whereClauseElements.add( new WhereClauseElement(left, exp, null) );
-            i = i + 2;
-
-            // for now all where clauses ony contain AND
-            if(i < tokens.length && (tokens[i].equalsIgnoreCase("and") || tokens[i].equalsIgnoreCase("or"))){
+    
+        List<WhereClauseElement> whereClauseElements = new ArrayList<>();
+        if (i < tokens.length && tokens[i].equalsIgnoreCase("where")) {
+            i++; // Move past "where"
+    
+            while (i < tokens.length && !tokens[i].equalsIgnoreCase("order")) {
+                if (i + 2 >= tokens.length) {
+                    throw new IllegalArgumentException("Invalid WHERE clause. Incomplete condition.");
+                }
+    
+                String left = tokens[i];
+                ExpressionTypeEnum exp = getExpressionFromString(tokens[i + 1]);
+                String right = tokens[i + 2];
+                whereClauseElements.add(new WhereClauseElement(left, exp, right));
+                i += 3;
+    
+                // handle and / or
+                if (i < tokens.length && (tokens[i].equalsIgnoreCase("and") || tokens[i].equalsIgnoreCase("or"))) {
+                    i++;
+                }
+            }
+        }
+    
+        List<OrderByClauseElement> orderByClauseElements = new ArrayList<>();
+        if (i < tokens.length && tokens[i].equalsIgnoreCase("order")) {
+            i++; // Move past "order"
+            if (i >= tokens.length || !tokens[i].equalsIgnoreCase("by")) {
+                // throw error if this happens
+                throw new IllegalArgumentException("Invalid ORDER BY clause.");
+            }
+            i++; // Move past "by"
+    
+            while (i < tokens.length) {
+                orderByClauseElements.add(new OrderByClauseElement(tokens[i].replace(",", "").trim()));
                 i++;
             }
         }
-
-        if(i == tokens.length)
-            return new SelectStatement(projection, table, whereClauseElements);
-
-        // ORDER BY
-        i+=2;
-        String orderByColumn = tokens[i];
-        List<OrderByClauseElement> orderByClauseElement = List.of(new OrderByClauseElement(orderByColumn));
-        return new SelectStatement(projection, table, whereClauseElements, orderByClauseElement);
+    
+        return new SelectStatement(projection, table, whereClauseElements, orderByClauseElements);
     }
-
-    private static ExpressionTypeEnum getExpressionFromString(String exp){
-
+    
+    private static ExpressionTypeEnum getExpressionFromString(String exp) {
+        // First check by name for common expressions
         if (ExpressionTypeEnum.EQUALS.name.equalsIgnoreCase(exp)) {
             return ExpressionTypeEnum.EQUALS;
         }
-
+        
         if (ExpressionTypeEnum.IN.name.equalsIgnoreCase(exp)) {
             return ExpressionTypeEnum.IN;
         }
-
-        // complete
-        return null;
-
+        
+        // Fall back to checking all enum values
+        for (ExpressionTypeEnum type : ExpressionTypeEnum.values()) {
+            if (type.name().equalsIgnoreCase(exp)) {
+                return type;
+            }
+        }
+        
+        throw new IllegalArgumentException("Unsupported expression type: " + exp);
     }
-
 }

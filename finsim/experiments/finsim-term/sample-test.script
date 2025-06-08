@@ -1,0 +1,29 @@
+# Sample FinSim Test Script
+# This demonstrates the script-based testing capabilities
+
+# Create some test instruments
+CREATE_INSTRUMENT (1001)
+CREATE_INSTRUMENT (1002)
+CREATE_INSTRUMENT (1003)
+
+# Sleep to ensure instruments are created before creating orders
+SLEEP (1000)
+
+# Create some individual orders
+CREATE_BUY_ORDER (3001, 1001, 100)
+CREATE_SELL_ORDER (3002, 1001, 50)
+
+# Repeat block for volume testing
+REPEAT (10)
+    CREATE_BUY_ORDER (3001, 1002, 25)
+    CREATE_SELL_ORDER (3002, 1002, 25)
+    CREATE_BUY_ORDER (3003, 1003, 10)
+    SLEEP (100)
+END REPEAT
+
+# Wait a bit before finishing
+SLEEP (2000)
+
+# Create some final orders
+CREATE_BUY_ORDER (3001, 1003, 200)
+CREATE_SELL_ORDER (3003, 1001, 75)

@@ -1,0 +1,25 @@
+# High Volume Test Script
+# This script creates a large number of orders for throughput testing
+
+# Create instruments for testing
+CREATE_INSTRUMENT (2001)
+CREATE_INSTRUMENT (2002)
+CREATE_INSTRUMENT (2003)
+CREATE_INSTRUMENT (2004)
+CREATE_INSTRUMENT (2005)
+
+# Wait for instruments to be created
+SLEEP (2000)
+
+# High volume order creation - 100 orders per instrument
+REPEAT (100)
+    CREATE_BUY_ORDER (4001, 2001, 10)
+    CREATE_SELL_ORDER (4001, 2001, 10)
+    CREATE_SELL_ORDER (4001, 2003, 20)
+    CREATE_BUY_ORDER (4001, 2003, 20)
+    # Small pause to avoid overwhelming the system
+    SLEEP (50)
+END REPEAT
+
+# Wait for all orders to process
+SLEEP (5000)
