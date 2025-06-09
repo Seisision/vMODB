@@ -45,10 +45,8 @@ public final class Main {
             System.out.println("Creating transaction DAG for CREATE_ORDER");
             TransactionDAG createOrderDag = TransactionBootstrap.name(CREATE_ORDER)
                     .input("a", "order", CREATE_ORDER)
-                    //.terminal("b", "market", "a")
                     .internal("b", "market", ORDER_CREATED, "a") // internal node for order creation
                     .terminal("c", "portfolio", "b") 
-                    // we used to have orderhandled in order_service internal node for market processing (ORDER_HANDLED)
                     .build();
             transactionMap.put(createOrderDag.name, createOrderDag);
             System.out.println("DEBUG: Added CREATE_ORDER DAG with name: '" + createOrderDag.name + "'");
@@ -61,9 +59,6 @@ public final class Main {
             TransactionDAG cancelOrderDag = TransactionBootstrap.name(CANCEL_ORDER)
                     .input("a", "order", CANCEL_ORDER)
                     .terminal("b", "market", "a")
-                    //TODO
-                    //.internal("b", "market", ORDER_CANCEL_ATTEMPTED, "a")
-                    //.terminal("c", "order", "b") // changes the order status to CANCELLED if the market accepts the cancellation
                     .build();
             transactionMap.put(cancelOrderDag.name, cancelOrderDag);
             System.out.println("DEBUG: Added CANCEL_ORDER DAG with name: '" + cancelOrderDag.name + "'");
@@ -93,18 +88,6 @@ public final class Main {
             transactionMap.put(createInstrumentDag.name, createInstrumentDag);
             System.out.println("DEBUG: Added CREATE_INSTRUMENT DAG to map with key: '" + createInstrumentDag.name + "'");
         } 
-
-        // else {
-        //     System.out.println("DEBUG: Not creating CREATE_INSTRUMENT DAG - not in transaction list");
-            
-        //     // FORCE CREATE the DAG regardless of property settings - for testing
-        //     System.out.println("DEBUG: FORCE CREATING the CREATE_INSTRUMENT DAG for testing");
-        //     TransactionDAG forcedDag = TransactionBootstrap.name(CREATE_INSTRUMENT)
-        //             .input("a", "instrument", CREATE_INSTRUMENT)
-        //             .build();
-        //     transactionMap.put(forcedDag.name, forcedDag);
-        //     System.out.println("DEBUG: Force-added CREATE_INSTRUMENT DAG with name: '" + forcedDag.name + "'");
-        // }
 
         // UPDATE_ORDER transaction: Order service updates an existing order
          if (transactions.contains(UPDATE_ORDER)) {
