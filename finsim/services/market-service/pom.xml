@@ -8,6 +8,7 @@
         <artifactId>finsim-microservices</artifactId>
         <groupId>finsim</groupId>
         <version>1.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <name>Market Service</name>

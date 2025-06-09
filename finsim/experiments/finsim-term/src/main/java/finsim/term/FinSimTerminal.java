@@ -39,7 +39,7 @@ public class FinSimTerminal {
         // Harcoded service information, should ideally be loaded from a config file or environment variables
         services.put("market", new ServiceInfo("market", "services/market-service/target/market-service-1.0-SNAPSHOT-jar-with-dependencies.jar", 8084, "/tmp/market.log"));
         services.put("order", new ServiceInfo("order", "services/order-service/target/order-service-1.0-SNAPSHOT-jar-with-dependencies.jar", 8082, "/tmp/order.log"));
-        services.put("instrument", new ServiceInfo("instrument", "services/instrument-service/target/instrument-service-1.0-SNAPSHOT-jar-with-dependencies.jar", 8081, "/tmp/instrument.log"));
+        services.put("instrument", new ServiceInfo("instrument", "services/instrument-service/target/instrument-service-1.0-SNAPSHOT-jar-with-dependencies.jar", 8092, "/tmp/instrument.log"));
         services.put("portfolio", new ServiceInfo("portfolio", "services/portfolio-service/target/portfolio-service-1.0-SNAPSHOT-jar-with-dependencies.jar", 8086, "/tmp/portfolio.log"));
         services.put("client", new ServiceInfo("client", "services/client-service/target/client-service-1.0-SNAPSHOT-jar-with-dependencies.jar", 8085, "/tmp/client.log"));
         services.put("proxy", new ServiceInfo("proxy", "services/proxy-service/target/proxy-service-1.0-SNAPSHOT-jar-with-dependencies.jar", 8091, "/tmp/proxy.log"));

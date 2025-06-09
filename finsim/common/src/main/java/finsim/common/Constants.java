@@ -7,7 +7,7 @@ public final class Constants {
      */
     public static final int TEST_VMS_PORT = 8080;
 
-    public static final int INSTRUMENT_VMS_PORT = 8081;
+    public static final int INSTRUMENT_VMS_PORT = 8092;
 
     public static final int ORDER_VMS_PORT = 8082;
     
